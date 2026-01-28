@@ -1,4 +1,7 @@
 package app;
+
+import constants.Location;
+import model.DeliveryPackage;
 import save.DataStore;
 import save.FileLoader;
 import save.FileSaver;
@@ -8,14 +11,24 @@ import service.SearchService;
 import service.TruckService;
 
 public class AppManager {
-    private final DataStore dataStore;
 
+    // Singleton
+    private static AppManager instance;
+
+    public static AppManager getInstance() {
+        if (instance == null) {
+            instance = new AppManager();
+        }
+        return instance;
+    }
+
+    private final DataStore dataStore;
     private final PackageService packageService;
     private final RouteService routeService;
     private final TruckService truckService;
     private final SearchService searchService;
 
-    public AppManager() {
+    private AppManager() {
         this.dataStore = new DataStore();
         this.packageService = new PackageService(dataStore);
         this.routeService = new RouteService(dataStore);
@@ -23,6 +36,7 @@ public class AppManager {
         this.searchService = new SearchService(dataStore);
     }
 
+    //Lifecycle
     public void loadState() {
         new FileLoader(dataStore).load();
     }
@@ -31,34 +45,44 @@ public class AppManager {
         new FileSaver(dataStore).save();
     }
 
+    //FR1 Logic
+    public void createPackage(Location start,
+                              Location end,
+                              double weight,
+                              String contact) {
 
-    public void createPackage() {
-    }
+        String id = "PKG" + (dataStore.getPackages().size() + 1);
 
-    public void createRoute() {
-    }
+        DeliveryPackage pkg =
+                new DeliveryPackage(id, start, end, weight, contact);
 
-    public void searchRoutes() {
-    }
+        packageService.addPackage(pkg);
 
-    public void assignTruckToRoute() {
-    }
-
-    public void assignPackageToRoute() {
-    }
-
-    public void viewRoutes() {
+        System.out.println("Package created successfully with ID: " + id);
     }
 
     public void viewPackages() {
+        System.out.println("\n--- All Packages ---");
+
+        if (dataStore.getPackages().isEmpty()) {
+            System.out.println("No packages created yet.");
+            return;
+        }
+
+        for (DeliveryPackage pkg : dataStore.getPackages()) {
+            System.out.println(pkg.getId() + " | " +
+                    pkg.getStartLocation() + " -> " +
+                    pkg.getEndLocation() + " | " +
+                    pkg.getWeight() + "kg | " +
+                    pkg.getCustomerContact());
+        }
     }
 
-    public void viewTrucks() {
-    }
-
-    public void viewUnassignedPackages() {
-    }
+    public void createRoute() {}
+    public void searchRoutes() {}
+    public void assignTruckToRoute() {}
+    public void assignPackageToRoute() {}
+    public void viewRoutes() {}
+    public void viewTrucks() {}
+    public void viewUnassignedPackages() {}
 }
-
-
-

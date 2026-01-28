@@ -1,5 +1,6 @@
 package app;
 
+import constants.Location;
 import java.util.Scanner;
 
 public class Menu {
@@ -12,7 +13,7 @@ public class Menu {
     public Menu(AppManager manager){
         this.manager = manager;
         this.scanner = new Scanner(System.in);
-        this.menuText = buildMenuText(); // build once
+        this.menuText = buildMenuText();
         this.running = true;
     }
 
@@ -25,7 +26,6 @@ public class Menu {
     }
 
     private String buildMenuText() {
-
         return """
                 ==== LOGISTICS MANAGEMENT SYSTEM ====
                 1. Create delivery package
@@ -52,14 +52,14 @@ public class Menu {
             try {
                 return Integer.parseInt(input.trim());
             } catch (NumberFormatException e) {
-                System.out.print("Please enter a number: ");  //make exceptions file
+                System.out.print("Please enter a number: ");
             }
         }
     }
 
     private void handleChoice(int choice) {
         switch (choice) {
-            case 1 -> manager.createPackage();
+            case 1 -> createPackageUI();
             case 2 -> manager.createRoute();
             case 3 -> manager.searchRoutes();
             case 4 -> manager.assignTruckToRoute();
@@ -72,6 +72,33 @@ public class Menu {
             default -> System.out.println("Invalid option.");
         }
     }
+
+    // ===== FR1 UI =====
+    private void createPackageUI() {
+
+        System.out.println("\n--- Create Delivery Package ---");
+
+        System.out.print("Available locations: ");
+        for (Location loc : Location.values()) {
+            System.out.print(loc + " ");
+        }
+        System.out.println();
+
+        System.out.print("Enter start location: ");
+        Location start = Location.valueOf(scanner.nextLine().trim().toUpperCase());
+
+        System.out.print("Enter end location: ");
+        Location end = Location.valueOf(scanner.nextLine().trim().toUpperCase());
+
+        System.out.print("Enter weight (kg): ");
+        double weight = Double.parseDouble(scanner.nextLine().trim());
+
+        System.out.print("Enter customer contact info: ");
+        String contact = scanner.nextLine().trim();
+
+        manager.createPackage(start, end, weight, contact);
+    }
+
     private void exit(){
         manager.saveState();
         System.out.println("Sbogom");

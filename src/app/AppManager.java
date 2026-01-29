@@ -11,9 +11,7 @@ import service.SearchService;
 import service.TruckService;
 import model.DeliveryRoute;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class AppManager {
 
@@ -83,38 +81,24 @@ public class AppManager {
         }
     }
 
-    public void createRoute() {
-        Scanner sc = new Scanner(System.in);
+    public void createRoute(List<Location> locations) {
 
-        try {
-            System.out.print("Enter locations separated by space (min 2), e.g. SYD MEL ADL:\n> ");
-            String line = sc.nextLine().trim();
-            String[] parts = line.split("\\s+");
-
-            if (parts.length < 2) {
-                System.out.println("Route must contain at least 2 locations.");
-                return;
-            }
-
-            List<Location> locations = new ArrayList<>();
-            for (String p : parts) {
-                locations.add(Location.valueOf(p.toUpperCase()));
-            }
-
-            String id = "R" + (dataStore.getRoutes().size() + 1);
-            DeliveryRoute route = new DeliveryRoute(id, locations);
-
-            routeService.addRoute(route);
-            System.out.println("Route created successfully with ID: " + id);
-
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+        if (locations.size() < 2) {
+            System.out.println("Route must contain at least 2 locations.");
+            return;
         }
+
+        String id = "R" + (dataStore.getRoutes().size() + 1);
+        DeliveryRoute route = new DeliveryRoute(id, locations);
+
+        routeService.addRoute(route);
+        System.out.println("Route created successfully with ID: " + id);
     }
 
     public void searchRoutes() {}
     public void assignTruckToRoute() {}
     public void assignPackageToRoute() {}
+
     public void viewRoutes() {
         System.out.println("\n--- All Routes ---");
 
@@ -123,10 +107,11 @@ public class AppManager {
             return;
         }
 
-        for (var route : dataStore.getRoutes()) {
+        for (DeliveryRoute route : dataStore.getRoutes()) {
             System.out.println(route.getId() + " | " + route.getLocations());
         }
     }
+
     public void viewTrucks() {}
     public void viewUnassignedPackages() {}
 }

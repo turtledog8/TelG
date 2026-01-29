@@ -9,6 +9,9 @@ import service.PackageService;
 import service.RouteService;
 import service.SearchService;
 import service.TruckService;
+import model.DeliveryRoute;
+
+import java.util.List;
 
 public class AppManager {
 
@@ -78,11 +81,37 @@ public class AppManager {
         }
     }
 
-    public void createRoute() {}
+    public void createRoute(List<Location> locations) {
+
+        if (locations.size() < 2) {
+            System.out.println("Route must contain at least 2 locations.");
+            return;
+        }
+
+        String id = "R" + (dataStore.getRoutes().size() + 1);
+        DeliveryRoute route = new DeliveryRoute(id, locations);
+
+        routeService.addRoute(route);
+        System.out.println("Route created successfully with ID: " + id);
+    }
+
     public void searchRoutes() {}
     public void assignTruckToRoute() {}
     public void assignPackageToRoute() {}
-    public void viewRoutes() {}
+
+    public void viewRoutes() {
+        System.out.println("\n--- All Routes ---");
+
+        if (dataStore.getRoutes().isEmpty()) {
+            System.out.println("No routes created yet.");
+            return;
+        }
+
+        for (DeliveryRoute route : dataStore.getRoutes()) {
+            System.out.println(route.getId() + " | " + route.getLocations());
+        }
+    }
+
     public void viewTrucks() {}
     public void viewUnassignedPackages() {}
 }

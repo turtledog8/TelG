@@ -1,6 +1,8 @@
 package app;
 
 import constants.Location;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
@@ -60,7 +62,7 @@ public class Menu {
     private void handleChoice(int choice) {
         switch (choice) {
             case 1 -> createPackageUI();
-            case 2 -> manager.createRoute();
+            case 2 -> createRouteUI();
             case 3 -> manager.searchRoutes();
             case 4 -> manager.assignTruckToRoute();
             case 5 -> manager.assignPackageToRoute();
@@ -73,7 +75,7 @@ public class Menu {
         }
     }
 
-    // ===== FR1 UI =====
+    // FR1 UI
     private void createPackageUI() {
 
         System.out.println("\n--- Create Delivery Package ---");
@@ -97,6 +99,27 @@ public class Menu {
         String contact = scanner.nextLine().trim();
 
         manager.createPackage(start, end, weight, contact);
+    }
+
+    // FR2 UI
+    private void createRouteUI() {
+
+        System.out.print("Enter locations separated by space (min 2), e.g. SYD MEL ADL:\n> ");
+        String line = scanner.nextLine().trim();
+        String[] parts = line.split("\\s+");
+
+        List<Location> locations = new ArrayList<>();
+
+        try {
+            for (String p : parts) {
+                locations.add(Location.valueOf(p.toUpperCase()));
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: Invalid location entered.");
+            return;
+        }
+
+        manager.createRoute(locations);
     }
 
     private void exit(){

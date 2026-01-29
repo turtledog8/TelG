@@ -1,6 +1,7 @@
 package model;
 
 import constants.Location;
+import vehicle.TransportVehicle;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -8,6 +9,7 @@ public class DeliveryRoute {
 
     private final String id;
     private final List<Location> locations;
+    private TransportVehicle assignedTruck;   // NEW
 
     private String departureTime;
     private final List<String> arrivalTimes;
@@ -16,6 +18,7 @@ public class DeliveryRoute {
         this.id = id;
         this.locations = locations;
         this.arrivalTimes = new ArrayList<>();
+        this.assignedTruck = null;
     }
 
     public String getId() {
@@ -40,5 +43,13 @@ public class DeliveryRoute {
 
     public void addArrivalTime(String arrivalTime) {
         arrivalTimes.add(arrivalTime);
+    }
+
+    public TransportVehicle getAssignedTruck() {
+        return assignedTruck;
+    }
+
+    public void setAssignedTruck(TransportVehicle truck) {
+        this.assignedTruck = truck;
     }
 }

@@ -95,8 +95,61 @@ public class AppManager {
         System.out.println("Route created successfully with ID: " + id);
     }
 
-    public void searchRoutes() {}
-    public void assignTruckToRoute() {}
+    public void searchRoutes(Location start, Location end) {
+
+        var routes = searchService.searchRoutes(start, end);
+
+        System.out.println("\n--- Search Results ---");
+
+        if (routes.isEmpty()) {
+            System.out.println("No matching routes found.");
+            return;
+        }
+
+        for (DeliveryRoute route : routes) {
+            System.out.println(route.getId() + " | " + route.getLocations());
+        }
+    }
+    public void assignTruckToRoute(String routeId, String truckId) {
+
+        DeliveryRoute selectedRoute = null;
+
+        for (DeliveryRoute r : dataStore.getRoutes()) {
+            if (r.getId().equals(routeId)) {
+                selectedRoute = r;
+                break;
+            }
+        }
+
+        if (selectedRoute == null) {
+            System.out.println("Route not found.");
+            return;
+        }
+
+        if (selectedRoute.getAssignedTruck() != null) {
+            System.out.println("Route already has a truck assigned.");
+            return;
+        }
+
+        var truck = truckService.findTruckById(truckId);
+
+        if (truck == null) {
+            System.out.println("Truck not found.");
+            return;
+        }
+
+        // prevent double assignment
+        for (DeliveryRoute r : dataStore.getRoutes()) {
+            if (r.getAssignedTruck() != null &&
+                    r.getAssignedTruck().getId().equals(truckId)) {
+                System.out.println("Truck is already assigned to another route.");
+                return;
+            }
+        }
+
+        selectedRoute.setAssignedTruck(truck);
+        System.out.println("Truck " + truckId + " assigned to route " + routeId);
+    }
     public void assignPackageToRoute() {}
 
     public void viewRoutes() {

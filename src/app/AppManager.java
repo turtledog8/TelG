@@ -162,9 +162,55 @@ public class AppManager {
 
         for (DeliveryRoute route : dataStore.getRoutes()) {
             System.out.println(route.getId() + " | " + route.getLocations());
+
+            if (route.getDepartureTime() != null) {
+                System.out.println("Departure: " + route.getDepartureTime());
+
+                for (int stopIndex = 1; stopIndex < route.getLocations().size(); stopIndex++) {
+                    String arrivalTime;
+
+                    if (stopIndex - 1 < route.getArrivalTimes().size()) {
+                        arrivalTime = route.getArrivalTimes().get(stopIndex - 1);
+                    } else {
+                        arrivalTime = "N/A";
+                    }
+                    System.out.println("Arrival time: " + arrivalTime);
+                }
+
+            }else {
+                System.out.println("No schedule set");
+            }
         }
+
     }
 
     public void viewTrucks() {}
     public void viewUnassignedPackages() {}
+
+    public void setRouteSchedule(String routeId, String departureTime, List<String> arrivalTimes) {
+        DeliveryRoute route = null;
+        for (DeliveryRoute r : dataStore.getRoutes()){
+            if (r.getId().equalsIgnoreCase(routeId)){
+                route = r;
+                break;
+            }
+        }
+        if (route == null) {
+            System.out.println("Route not found.");
+            return;
+        }
+
+        routeService.setDepartureTime(route, departureTime);
+
+        if (arrivalTimes.size() != route.getLocations().size() - 1){
+            System.out.println("You must enter exactly " + (route.getLocations().size() - 1) + " arrival times.");
+            return;
+        }
+
+        for (String t : arrivalTimes){
+            routeService.addArrivalTime(route, t);
+        }
+
+        System.out.println("Schedule added to route " + route.getId() + " successfully.");
+    }
 }

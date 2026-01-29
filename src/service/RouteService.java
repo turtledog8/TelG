@@ -14,4 +14,12 @@ public class RouteService {
     public void addRoute(DeliveryRoute route) {
         dataStore.getRoutes().add(route);
     }
+
+    public void setDepartureTime(DeliveryRoute route, String time) {
+        route.setDepartureTime(time);
+    }
+
+    public void addArrivalTime(DeliveryRoute route, String time) {
+        route.addArrivalTime(time);
+    }
 }

@@ -95,7 +95,21 @@ public class AppManager {
         System.out.println("Route created successfully with ID: " + id);
     }
 
-    public void searchRoutes() {}
+    public void searchRoutes(Location start, Location end) {
+
+        var routes = searchService.searchRoutes(start, end);
+
+        System.out.println("\n--- Search Results ---");
+
+        if (routes.isEmpty()) {
+            System.out.println("No matching routes found.");
+            return;
+        }
+
+        for (DeliveryRoute route : routes) {
+            System.out.println(route.getId() + " | " + route.getLocations());
+        }
+    }
     public void assignTruckToRoute() {}
     public void assignPackageToRoute() {}
 

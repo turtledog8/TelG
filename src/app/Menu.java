@@ -63,7 +63,7 @@ public class Menu {
         switch (choice) {
             case 1 -> createPackageUI();
             case 2 -> createRouteUI();
-            case 3 -> manager.searchRoutes();
+            case 3 -> searchRoutesUI();
             case 4 -> manager.assignTruckToRoute();
             case 5 -> manager.assignPackageToRoute();
             case 6 -> manager.viewRoutes();
@@ -127,4 +127,18 @@ public class Menu {
         System.out.println("Sbogom");
         running = false;
     }
+    // ===== FR4 UI =====
+    private void searchRoutesUI() {
+
+        System.out.println("\n--- Search Delivery Routes ---");
+
+        System.out.print("Enter start location: ");
+        Location start = Location.valueOf(scanner.nextLine().trim().toUpperCase());
+
+        System.out.print("Enter end location: ");
+        Location end = Location.valueOf(scanner.nextLine().trim().toUpperCase());
+
+        manager.searchRoutes(start, end);
+    }
+
 }

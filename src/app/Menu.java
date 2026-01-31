@@ -75,7 +75,6 @@ public class Menu {
         }
     }
 
-    // FR1 UI
     private void createPackageUI() {
 
         System.out.println("\n--- Create Delivery Package ---");
@@ -101,7 +100,6 @@ public class Menu {
         manager.createPackage(start, end, weight, contact);
     }
 
-    // FR2 UI
     private void createRouteUI() {
 
         System.out.print("Enter locations separated by space (min 2), e.g. SYD MEL ADL:\n> ");
@@ -127,7 +125,6 @@ public class Menu {
         System.out.println("Sbogom");
         running = false;
     }
-    // ===== FR4 UI =====
     private void searchRoutesUI() {
 
         System.out.println("\n--- Search Delivery Routes ---");
@@ -140,7 +137,6 @@ public class Menu {
 
         manager.searchRoutes(start, end);
     }
-    // ===== FR5 UI =====
     private void assignTruckToRouteUI() {
 
         System.out.println("\n--- Assign Truck to Route ---");

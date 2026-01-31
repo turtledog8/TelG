@@ -2,6 +2,7 @@ package app;
 
 import constants.Location;
 import model.DeliveryPackage;
+import model.DeliveryRoute;
 import save.DataStore;
 import save.FileLoader;
 import save.FileSaver;
@@ -9,7 +10,6 @@ import service.PackageService;
 import service.RouteService;
 import service.SearchService;
 import service.TruckService;
-import model.DeliveryRoute;
 
 import java.util.List;
 
@@ -39,16 +39,15 @@ public class AppManager {
         this.searchService = new SearchService(dataStore);
     }
 
-    //Lifecycle
     public void loadState() {
         new FileLoader(dataStore).load();
+        new FileSaver(dataStore).save();
     }
 
     public void saveState() {
         new FileSaver(dataStore).save();
     }
 
-    //FR1 Logic
     public void createPackage(Location start,
                               Location end,
                               double weight,
@@ -60,6 +59,7 @@ public class AppManager {
                 new DeliveryPackage(id, start, end, weight, contact);
 
         packageService.addPackage(pkg);
+        saveState();
 
         System.out.println("Package created successfully with ID: " + id);
     }
@@ -73,11 +73,13 @@ public class AppManager {
         }
 
         for (DeliveryPackage pkg : dataStore.getPackages()) {
-            System.out.println(pkg.getId() + " | " +
-                    pkg.getStartLocation() + " -> " +
-                    pkg.getEndLocation() + " | " +
-                    pkg.getWeight() + "kg | " +
-                    pkg.getCustomerContact());
+            System.out.println(
+                            pkg.getId() + " | " +
+                            pkg.getStartLocation() + " -> " +
+                            pkg.getEndLocation() + " | " +
+                            pkg.getWeight() + "kg | " +
+                            pkg.getCustomerContact()
+            );
         }
     }
 
@@ -92,6 +94,8 @@ public class AppManager {
         DeliveryRoute route = new DeliveryRoute(id, locations);
 
         routeService.addRoute(route);
+        saveState();
+
         System.out.println("Route created successfully with ID: " + id);
     }
 
@@ -110,12 +114,13 @@ public class AppManager {
             System.out.println(route.getId() + " | " + route.getLocations());
         }
     }
+
     public void assignTruckToRoute(String routeId, String truckId) {
 
         DeliveryRoute selectedRoute = null;
 
         for (DeliveryRoute r : dataStore.getRoutes()) {
-            if (r.getId().equals(routeId)) {
+            if (r.getId().equalsIgnoreCase(routeId)) {
                 selectedRoute = r;
                 break;
             }
@@ -138,7 +143,6 @@ public class AppManager {
             return;
         }
 
-        // prevent double assignment
         for (DeliveryRoute r : dataStore.getRoutes()) {
             if (r.getAssignedTruck() != null &&
                     r.getAssignedTruck().getId().equals(truckId)) {
@@ -148,8 +152,11 @@ public class AppManager {
         }
 
         selectedRoute.setAssignedTruck(truck);
+        saveState();
+
         System.out.println("Truck " + truckId + " assigned to route " + routeId);
     }
+
     public void assignPackageToRoute() {}
 
     public void viewRoutes() {
@@ -166,51 +173,76 @@ public class AppManager {
             if (route.getDepartureTime() != null) {
                 System.out.println("Departure: " + route.getDepartureTime());
 
-                for (int stopIndex = 1; stopIndex < route.getLocations().size(); stopIndex++) {
-                    String arrivalTime;
-
-                    if (stopIndex - 1 < route.getArrivalTimes().size()) {
-                        arrivalTime = route.getArrivalTimes().get(stopIndex - 1);
-                    } else {
-                        arrivalTime = "N/A";
-                    }
-                    System.out.println("Arrival time: " + arrivalTime);
+                for (int i = 0; i < route.getArrivalTimes().size(); i++) {
+                    System.out.println("Arrival time: " +
+                            route.getArrivalTimes().get(i));
                 }
-
-            }else {
+            } else {
                 System.out.println("No schedule set");
             }
-        }
 
+            if (route.getAssignedTruck() != null) {
+                System.out.println("Assigned truck: " +
+                        route.getAssignedTruck().getId());
+            } else {
+                System.out.println("No truck assigned");
+            }
+        }
     }
 
-    public void viewTrucks() {}
+    public void viewTrucks() {
+
+        System.out.println("\n--- All Trucks ---");
+
+        if (dataStore.getTrucks().isEmpty()) {
+            System.out.println("No trucks available.");
+            return;
+        }
+
+        for (var truck : dataStore.getTrucks()) {
+            System.out.println(
+                    truck.getId() + " | " +
+                            truck.name() + " | " +
+                            truck.getCapacityKg() + "kg | " +
+                            truck.getMaxRangeKm() + "km"
+            );
+        }
+    }
+
     public void viewUnassignedPackages() {}
 
-    public void setRouteSchedule(String routeId, String departureTime, List<String> arrivalTimes) {
+    public void setRouteSchedule(String routeId,
+                                 String departureTime,
+                                 List<String> arrivalTimes) {
+
         DeliveryRoute route = null;
-        for (DeliveryRoute r : dataStore.getRoutes()){
-            if (r.getId().equalsIgnoreCase(routeId)){
+
+        for (DeliveryRoute r : dataStore.getRoutes()) {
+            if (r.getId().equalsIgnoreCase(routeId)) {
                 route = r;
                 break;
             }
         }
+
         if (route == null) {
             System.out.println("Route not found.");
             return;
         }
 
-        routeService.setDepartureTime(route, departureTime);
-
-        if (arrivalTimes.size() != route.getLocations().size() - 1){
-            System.out.println("You must enter exactly " + (route.getLocations().size() - 1) + " arrival times.");
+        if (arrivalTimes.size() != route.getLocations().size() - 1) {
+            System.out.println("You must enter exactly " +
+                    (route.getLocations().size() - 1) + " arrival times.");
             return;
         }
 
-        for (String t : arrivalTimes){
+        routeService.setDepartureTime(route, departureTime);
+
+        route.getArrivalTimes().clear();
+        for (String t : arrivalTimes) {
             routeService.addArrivalTime(route, t);
         }
 
-        System.out.println("Schedule added to route " + route.getId() + " successfully.");
+        saveState();
+        System.out.println("Schedule added to route " + route.getId());
     }
 }

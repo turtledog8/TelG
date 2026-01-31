@@ -9,7 +9,10 @@ public class TruckService {
 
     public TruckService(DataStore dataStore) {
         this.dataStore = dataStore;
-        initializeTrucks();
+
+        if (dataStore.getTrucks().isEmpty()) {
+            initializeTrucks();
+        }
     }
 
     private void initializeTrucks() {
@@ -28,7 +31,7 @@ public class TruckService {
     }
 
     public TransportVehicle findTruckById(String id) {
-        for (var truck : dataStore.getTrucks()) {
+        for (TransportVehicle truck : dataStore.getTrucks()) {
             if (truck.getId().equals(id)) {
                 return truck;
             }

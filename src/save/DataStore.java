@@ -26,7 +26,5 @@ public class DataStore {
         return routes;
     }
 
-    public List<TransportVehicle> getTrucks() {
-        return trucks;
-    }
+    public List<TransportVehicle> getTrucks() {return trucks;}
 }

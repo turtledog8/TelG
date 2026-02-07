@@ -5,11 +5,14 @@ import vehicle.TransportVehicle;
 import java.util.List;
 import java.util.ArrayList;
 
+
 public class DeliveryRoute {
 
     private final String id;
     private final List<Location> locations;
-    private TransportVehicle assignedTruck;   // NEW
+    private TransportVehicle assignedTruck;
+
+    private final List<DeliveryPackage> assignedPackages = new ArrayList<>();
 
     private String departureTime;
     private final List<String> arrivalTimes;
@@ -51,5 +54,30 @@ public class DeliveryRoute {
 
     public void setAssignedTruck(TransportVehicle truck) {
         this.assignedTruck = truck;
+    }
+
+    public List<DeliveryPackage> getAssignedPackages() {
+        return assignedPackages;
+    }
+
+    public void addPackage(DeliveryPackage pkg) {
+        assignedPackages.add(pkg);
+    }
+
+    public boolean hasPackage(String packageId) {
+        for (DeliveryPackage p : assignedPackages) {
+            if (p.getId().equalsIgnoreCase(packageId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public double getAssignedWeight() {
+        double sum = 0;
+        for (DeliveryPackage p : assignedPackages) {
+            sum += p.getWeight();
+        }
+        return sum;
     }
 }

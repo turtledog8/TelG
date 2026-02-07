@@ -12,6 +12,7 @@ import service.TruckService;
 import model.DeliveryRoute;
 
 import java.util.List;
+import java.util.Scanner;
 
 public class AppManager {
 
@@ -150,7 +151,84 @@ public class AppManager {
         selectedRoute.setAssignedTruck(truck);
         System.out.println("Truck " + truckId + " assigned to route " + routeId);
     }
-    public void assignPackageToRoute() {}
+    public void assignPackageToRoute() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("\n--- Assign Package to Route ---");
+        System.out.print("Enter package ID (e.g. PKG1): ");
+        String packageId = sc.nextLine().trim();
+
+        System.out.print("Enter route ID (e.g. R1): ");
+        String routeId = sc.nextLine().trim();
+
+
+        DeliveryPackage pkg = null;
+        for (DeliveryPackage p : dataStore.getPackages()) {
+            if (p.getId().equalsIgnoreCase(packageId)) {
+                pkg = p;
+                break;
+            }
+        }
+        if (pkg == null) {
+            System.out.println("Package not found.");
+            return;
+        }
+
+
+        DeliveryRoute route = null;
+        for (DeliveryRoute r : dataStore.getRoutes()) {
+            if (r.getId().equalsIgnoreCase(routeId)) {
+                route = r;
+                break;
+            }
+        }
+        if (route == null) {
+            System.out.println("Route not found.");
+            return;
+        }
+
+
+        if (route.hasPackage(pkg.getId())) {
+            System.out.println("This package is already assigned to this route.");
+            return;
+        }
+
+
+        for (DeliveryRoute r : dataStore.getRoutes()) {
+            if (r.hasPackage(pkg.getId())) {
+                System.out.println("Package is already assigned to another route (" + r.getId() + ").");
+                return;
+            }
+        }
+
+
+        int startIndex = route.getLocations().indexOf(pkg.getStartLocation());
+        int endIndex = route.getLocations().indexOf(pkg.getEndLocation());
+
+        if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+            System.out.println("Package locations do not match the route.");
+            return;
+        }
+
+
+        if (route.getAssignedTruck() == null) {
+            System.out.println("Cannot assign package: no truck assigned to this route.");
+            return;
+        }
+
+        double usedWeight = route.getAssignedWeight();
+        double capacity = route.getAssignedTruck().getCapacityKg();
+
+        if (usedWeight + pkg.getWeight() > capacity) {
+            double remaining = capacity - usedWeight;
+            System.out.println("Not enough capacity. Remaining: " + remaining + "kg");
+            return;
+        }
+
+
+        route.addPackage(pkg);
+        System.out.println("Package " + pkg.getId() + " assigned to route " + route.getId() + ".");
+    }
 
     public void viewRoutes() {
         System.out.println("\n--- All Routes ---");
